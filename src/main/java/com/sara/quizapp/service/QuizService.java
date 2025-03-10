@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.sara.quizapp.dao.QuestionDao;
 import com.sara.quizapp.dao.QuizDao;
 import com.sara.quizapp.model.Quiz;
+import com.sara.quizapp.model.Response;
 import com.sara.quizapp.model.Question;
 import com.sara.quizapp.model.QuestionWrapper;
 
@@ -23,7 +24,7 @@ public class QuizService {
     QuestionDao questionsDao;
 
     public ResponseEntity<String> createQuiz(String category,int numberOfQues,String title){
-        // try{
+        try{
             List<Question> questionsForQuiz=questionsDao.findRandomQuestionsByCategory(category,numberOfQues);
             
             Quiz quiz=new Quiz();
@@ -33,16 +34,15 @@ public class QuizService {
 
             return new ResponseEntity<>("Successfully Created the Quiz!",HttpStatus.CREATED);
 
-        // }
-        // catch(Exception ex){
-        //     ex.printStackTrace();
-        // }
-        // return new ResponseEntity<>("UnSuccessful Attempt!",HttpStatus.BAD_REQUEST);
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<>("UnSuccessful Attempt!",HttpStatus.BAD_REQUEST);
     }
 
     public ResponseEntity<List<QuestionWrapper>> getQuiz(int id) {
-        try{
-            
+        try{          
             Optional<Quiz> quiz=quizDao.findById(id);
             List<Question> quesFromDb=quiz.get().getQuestions();
             List<QuestionWrapper> quesForUser=new ArrayList<>();
@@ -51,12 +51,32 @@ public class QuizService {
                 quesForUser.add(qw);
             }
             return new ResponseEntity<>(quesForUser,HttpStatus.OK);
-
         }
         catch(Exception ex){
             ex.printStackTrace();
         }
         return new ResponseEntity<>(new ArrayList<>(),HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<Integer> calculateResult(Integer id, List<Response> responses) {
+        Quiz quiz = quizDao.findById(id).orElse(null);
+        if (quiz == null) {
+            return new ResponseEntity<>(0, HttpStatus.BAD_REQUEST);
+        }
+        // System.out.println(responses);
+    
+        List<Question> questions = quiz.getQuestions();
+        int right = 0;
+    
+        for (int i = 0; i < responses.size(); i++) {
+            Response response=responses.get(i);
+            if (response != null && response.getResponses() != null && 
+            response.getResponses().equals(questions.get(i).getRightAnswer())) {
+            right++;
+            }
+        }
+    
+        return new ResponseEntity<>(right, HttpStatus.OK);
     }
 
     
