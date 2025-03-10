@@ -1,4 +1,4 @@
-package com.sara.quizapp;
+package com.sara.quizapp.model;
 
 import jakarta.annotation.Generated;
 import jakarta.persistence.Entity;
@@ -9,10 +9,9 @@ import lombok.Data;
 
 @Data
 @Entity
-
 public class Question {
 @Id 
-@GeneratedValue(strategy = GenerationType.SEQUENCE)
+@GeneratedValue(strategy = GenerationType.IDENTITY)
 
     private Integer id;
     private String questionTitle;
